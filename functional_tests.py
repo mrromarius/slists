@@ -3,13 +3,28 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
 import unittest
+import sys
+from sys import platform
+
 
 class NewVisitorTest(unittest.TestCase):
     '''тест нового посетителя'''
     
     def setUp(self):
-        '''установка'''
-        self.browser = webdriver.Firefox()
+        '''установка'''    
+        for p in sys.path:
+            print(p)   
+        if platform == "linux" or platform == "linux2":
+    # linux
+            print('запуск на Линус')
+        elif platform == "darwin":
+    # OS X
+            print("Запуск на Маке")
+            self.browser = webdriver.Firefox(executable_path = '/usr/local/bin/geckodriver')
+        else:
+    # Windows...
+            print('Запуск на Винде')
+            self.browser = webdriver.Firefox()
 
     def tearDown(self):
         '''уничтожение'''
