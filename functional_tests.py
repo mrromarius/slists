@@ -1,28 +1,30 @@
 
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+import sys
 import time
 import unittest
-import sys
 from sys import platform
+
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
 
 class NewVisitorTest(unittest.TestCase):
     '''тест нового посетителя'''
-    
+
     def setUp(self):
-        '''установка'''    
+        '''установка'''
         for p in sys.path:
-            print(p)   
+            print(p)
         if platform == "linux" or platform == "linux2":
-    # linux
+            # linux
             print('запуск на Линус')
         elif platform == "darwin":
-    # OS X
+            # OS X
             print("Запуск на Маке")
-            self.browser = webdriver.Firefox(executable_path = '/usr/local/bin/geckodriver')
+            self.browser = webdriver.Firefox(
+                executable_path='/usr/local/bin/geckodriver')
         else:
-    # Windows...
+            # Windows...
             print('Запуск на Винде')
             self.browser = webdriver.Firefox()
 
@@ -43,35 +45,41 @@ class NewVisitorTest(unittest.TestCase):
         # ей сразу же предлагается ввести элемент списка
         inputbox = self.browser.find_element_by_id('id_new_item')
         self.assertEqual(
-            inputbox.get_attribute('placeholder'), 
+            inputbox.get_attribute('placeholder'),
             'Введите элемент списка'
         )
 
         # она выбирает в текстовом поле "купить павлиньи перья" (ее хобби - вязание рыболовных мушек)
         inputbox.send_keys('Купить павлиньи перья')
 
-        # когда она нажимает ентер, страница обновляется, и теперь страница содержит 
+        # когда она нажимает ентер, страница обновляется, и теперь страница содержит
         # "1. купить павлиньи перья" в качестве элемента списка
         inputbox.send_keys(Keys.ENTER)
         time.sleep(1)
 
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertTrue(
-            any(row.text == '1. Купить павлиньи перья' for row in rows),
-            "Новый элемент списка не появился в таблице"
-        )
+        self.assertIn('1. Купить павлиньи перья', [row.text for row in rows])
         # текстовое поле по-прежнему приглашает ее добавить еще один элемент.
         # она заводит "Сделать мушку из павлиньих перьев"
         # (Эдит очень методичка)
-        self.fail('Закончить тест!')
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Сделать мушку из павлиньих перьев')
+        inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
         # страница сново обновляется, и теперь показывает оба элемента ее списка
-
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_element_by_tag_name('tr')
+        self.assertIn('1. Купить павлиньи перья', [row.text for row in rows])
+        self.assertIn('2. Сделать мушку из павлиньих перьев',
+                      [row.text for row in rows])
         # Эдит интересно, запомнит ли сайт ее спсико. Далее она видит, что
         # сайт сгенерировал для нее уникальный УРЛ-адрес об этом
         # выводится небольшой текст с объяснениями.
+        self.fail('Закончить тест!')
 
         # она посещяет этот УРЛ адрес- ее список по прежднему там.
+
 
         # удовлетворенная, она снова ложится спать
 if __name__ == '__main__':
