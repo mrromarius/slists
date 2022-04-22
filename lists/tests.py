@@ -30,26 +30,21 @@ class HomePageTest(TestCase):
         response = self.client.post(
             '/', data={'item_text': 'Новый элемент списка'})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/')
+        self.assertEqual(response['location'], '/lists/uniqurl/')
 
     def test_only_saves_items_when_nessesary(self):
         '''тест на сохранение элементов, только когда нужно'''
         self.client.get('/')
         self.assertEqual(Item.objects.count(), 0)
 
-    def test_displays_all_list_items(self):
-        '''тест: отоброжаются все элементы в списке'''
-        Item.objects.create(text='itemey 1')
-        Item.objects.create(text='itemey 2')
-
-        response = self.client.get('/')
-
-        self.assertIn('itemey 1', response.content.decode())
-        self.assertIn('itemey 2', response.content.decode())
-
 
 class ItemModelTest(TestCase):
     '''тест модели элемента списка'''
+
+    def test_uses_list_template(self):
+        '''тест используется шаблон списка'''
+        response = self.client.get('/lists/uniqurl/')
+        self.assertTemplateUsed(response, 'list.html')
 
     def test_saving_and_retrieving_items(self):
         '''тест сохранения и получение элементов списка'''
@@ -68,3 +63,16 @@ class ItemModelTest(TestCase):
         second_saved_item = saved_items[1]
         self.assertEqual(first_saved_item.text, 'Первый элемент списка')
         self.assertEqual(second_saved_item.text, 'Второй элемент списка')
+
+class ListViewTest(TestCase):
+    '''тест представления списка'''
+
+    def test_displays_all_items(self):
+        '''тест: отоброжаются все элементы в списке'''
+        Item.objects.create(text='itemey 1')
+        Item.objects.create(text='itemey 2')
+
+        response = self.client.get('/lists/uniqurl/')
+
+        self.assertContains(response, 'itemey 1')
+        self.assertContains(response, 'itemey 2')
