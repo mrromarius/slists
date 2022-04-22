@@ -5,6 +5,7 @@ import unittest
 from sys import platform
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from django.test import LiveServerTestCase
 from selenium.common.exceptions import WebDriverException
@@ -17,20 +18,7 @@ class NewVisitorTest(LiveServerTestCase):
 
     def setUp(self):
         '''установка'''
-        for p in sys.path:
-            print(p)
-        if platform == "linux" or platform == "linux2":
-            # linux
-            print('запуск на Линус')
-        elif platform == "darwin":
-            # OS X
-            print("Запуск на Маке")
-            self.browser = webdriver.Firefox(
-                executable_path='/usr/local/bin/geckodriver')
-        else:
-            # Windows...
-            print('Запуск на Винде')
-            self.browser = webdriver.Firefox()
+        self.browser = webdriver.Firefox()
 
     def tearDown(self):
         '''уничтожение'''
@@ -42,7 +30,7 @@ class NewVisitorTest(LiveServerTestCase):
         while True:
             try:
                 table = self.browser.find_element_by_id('id_list_table')
-                rows = table.find_elements_by_tag_name('tr')
+                rows = table.find_elements(By.TAG_NAME, 'tr')
                 self.assertIn(row_text, [row.text for row in rows])
                 return
             except(AssertionError, WebDriverException) as e:
