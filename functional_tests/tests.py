@@ -1,4 +1,6 @@
-
+# TODO:
+# --* Сделать чистку за собой
+# --* Поддержка более чем 1 списка
 import sys
 import time
 import unittest
@@ -6,9 +8,9 @@ from sys import platform
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from django.test import LiveServerTestCase
 
-
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
     '''тест нового посетителя'''
 
     def setUp(self):
@@ -41,7 +43,7 @@ class NewVisitorTest(unittest.TestCase):
     def test_can_start_a_list_and_retrieve_it_later(self):
         # Эдит слышала про крутое новое онлайн-приложение со списком
         # неотложных дел. она решает оценить его домашнюю страницу
-        self.browser.get('http://127.0.0.1:8000/')
+        self.browser.get(self.live_server_url)
 
         # Она видит, что заголовок и шапка страницы говорят о списках неотложных дел
         self.assertIn('To-Do', self.browser.title)
@@ -83,5 +85,3 @@ class NewVisitorTest(unittest.TestCase):
 
 
         # удовлетворенная, она снова ложится спать
-if __name__ == '__main__':
-    unittest.main(warnings='ignore')
