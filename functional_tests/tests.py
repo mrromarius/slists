@@ -120,7 +120,7 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertNotEqual(francis_list_url, edth_list_url)
 
         # Проверяем нет ли следов от списка Эдит в списке Френсиса
-        page_text = self.browser.find_element_by_id('body').text
+        page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('Купить павлиньи перья', page_text)
         self.assertIn('Купить молоко', page_text)
 
