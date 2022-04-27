@@ -7,13 +7,13 @@ from sys import platform
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.common.exceptions import WebDriverException
 
 MAX_WAIT = 10
 
 
-class NewVisitorTest(LiveServerTestCase):
+class NewVisitorTest(StaticLiveServerTestCase):
     '''тест нового посетителя'''
 
     def setUp(self):
@@ -22,6 +22,7 @@ class NewVisitorTest(LiveServerTestCase):
 
     def tearDown(self):
         '''уничтожение'''
+        self.browser.refresh()
         self.browser.quit()
 
     def wait_for_row_in_list_tabel(self, row_text):
