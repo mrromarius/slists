@@ -3,6 +3,7 @@ import sys
 import time
 import unittest
 from sys import platform
+import os
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -19,6 +20,9 @@ class NewVisitorTest(StaticLiveServerTestCase):
     def setUp(self):
         '''установка'''
         self.browser = webdriver.Firefox()
+        staging_server = os.environ.get('STAGING_SERVER')
+        if staging_server:
+            self.live_server_url = 'http://' + staging_server
 
     def tearDown(self):
         '''уничтожение'''
