@@ -1,12 +1,15 @@
+from cgitb import text
 from pydoc import doc
 from re import I
 from telnetlib import DO
 from urllib import response
+from xml.dom import ValidationErr
 from lists.models import Item, List
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.test import TestCase
 from django.urls import resolve
+from django.core.exceptions import ValidationError
 
 from lists.views import home_page
 
@@ -67,6 +70,29 @@ class NewListTest(TestCase):
         response = self.client.post('/lists/new', data={'item_text': 'Новый элемент списка'})
         new_list = List.objects.first()
         self.assertRedirects(response, f'/lists/{new_list.id}/')
+
+    def test_cannot_save_empty_list_items(self):
+        '''тест: нельзя добавлять пустые элементы списка'''
+        list_ = List.objects.create()
+        item = Item(list=list_, text='')
+        with self.assertRaises(ValidationError):
+            item.save()
+            item.full_clean()
+
+    def test_validation_errors_are_sent_back_to_home_page_template(self):
+        '''тест: ошибки валидации отсылают назад в шаблон домашней страницы'''
+        response = self.client.post('/lists/new', data={'item_text':''})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'home.html')
+        expected_error = "Поле не должно быть пустым!"
+        self.assertContains(response, expected_error)
+    
+    def test_invalid_list_item_arent_saved(self):
+        '''тест: сохраняются недопустимые элементы списка'''
+        self.client.post('/lists/new', data={'item_text':''})
+        self.assertEqual(List.objects.count(), 0)
+        self.assertEqual(Item.objects.count(), 0)
+
 
 class NewItemTest(TestCase):
     '''тест нового элемента списка'''

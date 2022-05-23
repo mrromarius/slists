@@ -18,7 +18,7 @@ class ItemValidationTest(FunctionalTest):
         # которое говорит, что элемент списка не должен быть пустым
         self.wait_for(lambda: self.assertEqual(
             self.browser.find_element_by_css_selector('.has-error').text,
-            "Поле не должно быть пустым"
+            "Поле не должно быть пустым!"
         )) 
         # Она пробует снова, теперь с неким текстом для элемента, и теперь это работает
         self.browser.find_element_by_id('id_new_item').send_keys('Купить молока')
@@ -30,7 +30,7 @@ class ItemValidationTest(FunctionalTest):
         # Она получается аналогичное предупреждение на странице списка
         self.wait_for(lambda: self.assertEqual(
             self.browser.find_element_by_css_selector('.has-error').text,
-            "Поле не должно быть пустым"
+            "Поле не должно быть пустым!"
         ))
         # Она получает аналогичное предупреждение на странице списка
         self.browser.find_element_by_id('id_new_item').send_keys('Получить чаёк')
