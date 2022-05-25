@@ -1,4 +1,5 @@
 from cgitb import text
+from glob import escape
 from pydoc import doc
 from re import I
 from telnetlib import DO
@@ -73,6 +74,18 @@ class ListViewTest(TestCase):
 
         response = self.client.post(f'/lists/{correct_list.id}/', data={'item_text':'Новый элемент для существующего списка'})
         self.assertRedirects(response, f'/lists/{correct_list.id}/')
+
+    def test_validation_errors_end_up_on_lists_page(self):
+        '''тест: ошибки валидации оканчиваются на странице списков'''
+        list_ =List.objects.create()
+        response = self.client.post(
+            f'/lists/{list_.id}/',
+            data={'item_text':''}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'list.html')
+        expected_error = escape("Поле не должно быть пустым!")
+        self.assertContains(response, expected_error)
 
 class NewListTest(TestCase):
     '''тест нового списка'''
