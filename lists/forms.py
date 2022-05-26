@@ -9,6 +9,9 @@ EMPTY_ITEM_ERROR = "Поле не должно быть пустым!"
 class ItemForm(forms.models.ModelForm):
     '''форма элемента списка'''
 
+    def save(self, for_list):
+        self.instance.list = for_list
+        return super().save()
     class Meta:
         model = Item
         fields = ('text',)
