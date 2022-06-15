@@ -1,12 +1,5 @@
-from cgitb import text
 from glob import escape
-from pydoc import doc
-from re import I
-from telnetlib import DO
-from unicodedata import name
-from urllib import response
-from xml.dom import ValidationErr
-from django.http import HttpRequest
+from unittest import skip
 from django.template.loader import render_to_string
 from django.test import TestCase
 from django.urls import resolve
@@ -112,6 +105,22 @@ class ListViewTest(TestCase):
         response = self.client.get(f'/lists/{list_.id}/')
         self.assertIsInstance(response.context['form'], ItemForm)
         self.assertContains(response, 'name="text"')
+
+    @skip
+    def test_duplicate_item_validation_errors_end_up_on_lists_page(self):
+        '''тест: ошибки валидации повторяющегося элемента
+        оканчиваются на странице списков'''
+        list1 = List.objects.create()
+        item1 = Item.objects.create(list=list1, text='textey')
+        response = self.client.post(
+            f'/lists/{list1.id}',
+            data={'text':'textey'}
+        )
+
+        expected_error = escape('Не повторяйся!!!')
+        self.assertContains(response, expected_error)
+        self.assertTemplateUsed(response, 'list.html')
+        self.assertEqual(Item.objects.all().count(), 1)
 
 class NewListTest(TestCase):
     '''тест нового списка'''
