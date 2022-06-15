@@ -40,3 +40,20 @@ class ItemValidationTest(FunctionalTest):
         self.wait_for_row_in_list_tabel('1. Купить молока')
         self.wait_for_row_in_list_tabel('2. Получить чаёк')
         
+    def test_cannot_add_duplicate_items(self):
+        '''тест: нельзя добавлять повторяющиеся элементы'''
+        # Эдит открывает домашнюю страницу и начинает новый список
+        self.browser.get(self.live_server_url)
+        self.get_item_input_box().send_keys('Купить печенюхи')
+        self.get_item_input_box().send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_tabel('1. Купить печенюхи')
+
+        # Она случанйо пытается ввести повторяющийся элемент
+        self.get_item_input_box().send_keys('Купить печенюхи')
+        self.get_item_input_box().send_keys(Keys.ENTER)
+
+        # Она видит полезное сообщение об ошибке
+        self.wait_for(lambda: self.assertEqual(
+            self.browser.find_element_by_css_selector('.has-error').text,
+            "Не повторяйся!!!"
+        ))
