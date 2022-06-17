@@ -1,8 +1,6 @@
-from dataclasses import field
-from pyexpat import model
-from tkinter import Widget
 from django import forms
 from lists.models import Item
+from django.core.exceptions import ValidationError
 
 EMPTY_ITEM_ERROR = "Поле не должно быть пустым!"
 DUPLICATE_ITEM_ERROR = "Не повторяйся!!!"
@@ -34,11 +32,15 @@ class ExistingListItemForm(ItemForm):
 
     def __init__(self, for_list, *agrs, **kwargs):
         super().__init__(*agrs, **kwargs)
+        self.instance.list = for_list
 
     def validate_unique(self):
         '''проверка уникальности'''
         try:
             self.instance.validate_unique()
-        except ValueError as e:
+        except ValidationError as e:
             e.error_dict = {'text':[DUPLICATE_ITEM_ERROR]}
             self._update_errors(e)
+    
+    def save(self):
+        return forms.models.ModelForm.save(self)
