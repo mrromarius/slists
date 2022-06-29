@@ -74,13 +74,13 @@ class ItemValidationTest(FunctionalTest):
         self.get_item_input_box().send_keys(Keys.ENTER)
 
         self.wait_for(lambda: self.assertTrue(
-            self.get_error_element().is_displayed
+            self.get_error_element().is_displayed()
         ))
         # Она начинает набирать новый текст
         self.get_item_input_box().send_keys('a')
         # Она довольна что сообщение об ошибке исчезает
         self.wait_for(lambda: self.assertFalse(
-            self.get_error_element().is_displayed
+            self.get_error_element().is_displayed()
         ))
 
 
