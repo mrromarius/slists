@@ -1,4 +1,3 @@
-import email
 from django.core import mail
 from selenium.webdriver.common.keys import Keys
 import re
