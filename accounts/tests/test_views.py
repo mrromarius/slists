@@ -1,5 +1,6 @@
 from django.test import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, call
+from accounts.models import Token
 
 import accounts.views
 
@@ -40,3 +41,57 @@ class SendLoginEmailViewTest(TestCase):
         self.assertEqual(from_email, 'noreply@superlists')
         self.assertEqual(to_list, ['test@gmail.com'])
 
+
+    def test_adds_success_message(self):
+        '''тест: добавляется сообщение об успехе'''
+        response = self.client.post('/accounts/send_login_email', data={
+            'email':'test@gmail.com'
+        }, follow=True)
+
+        message = list(response.context['messages'])[0]
+        self.assertEqual(
+            message.message,
+            "Проверьте свою почту, мы отправили Вам ссылку, которую можно использовать для входа на сайт."
+        )
+
+        self.assertEqual(message.tags, "success")
+
+
+class LoginViewTest(TestCase):
+    '''тест представления входа в систему'''
+
+    def test_redirect_to_home_pahe(self):
+        '''тест: переадресуется на домашнюю страницу'''
+        response = self.client.get('/accounts/login?token=abcd123')
+        self.assertRedirects(response, '/')
+
+    def test_creates_token_associated_with_email(self):
+        '''тест: создается маркер, связаный с электронной почтой'''
+        self.client.post('/accounts/send_login_email', data={
+            'email':'test@gmail.com'
+        })
+        token = Token.objects.first()
+        self.assertEqual(token.email, 'test@gmail.com')
+
+    @patch('accounts.views.send_mail')
+    def test_sends_link_to_login_using_token_uid(self, mock_send_mail):
+        '''тест: отсылается ссылка для входа в систему, использую маркер uid'''
+        self.client.post('/accounts/send_login_email', data={
+            'email':'test@gmail.com'
+        })
+
+        token = Token.objects.first()
+        expected_url = f'http://testserver/accounts/login?token={token.uid}'
+        (subject, body, from_email, to_list), kwargs=mock_send_mail.call_args
+        self.assertIn(expected_url, body)
+
+
+
+    @patch('accounts.views.auth')
+    def test_calls_authenticate_with_uid_from_get_request(self, mock_auth):
+        '''тест: вызывается аутентификейт с уидом из гет-запроса'''
+        self.client.get('/accounts/login?token=abcd123')
+        self.assertEqual(
+            mock_auth.authenticate.call_args,
+            call(uid='abcd123')
+        )

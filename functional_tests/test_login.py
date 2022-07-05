@@ -5,7 +5,7 @@ import re
 from .base import FunctionalTest
 
 TEST_EMAIL = 'romashev.al.s@gmail.com'
-SUBJECT = 'Ваша ссылка на Суперзаписюльку'
+SUBJECT = 'Ваша ссылка на Суперзаписюльки'
 
 class LoginTEst(FunctionalTest):
     '''тест регистрации в системе'''
