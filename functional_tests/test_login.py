@@ -1,3 +1,4 @@
+from time import sleep
 from django.core import mail
 from selenium.webdriver.common.keys import Keys
 import re
@@ -7,7 +8,7 @@ from .base import FunctionalTest
 TEST_EMAIL = 'romashev.al.s@gmail.com'
 SUBJECT = 'Ваша ссылка на Суперзаписюльки'
 
-class LoginTEst(FunctionalTest):
+class LoginTest(FunctionalTest):
     '''тест регистрации в системе'''
 
     def test_can_get_mail_link_to_log_in(self):
@@ -48,3 +49,13 @@ class LoginTEst(FunctionalTest):
         )
         navbar = self.browser.find_element_by_css_selector('.navbar')
         self.assertIn(TEST_EMAIL, navbar.text)
+
+        #теперь она выходит из системы
+        self.browser.find_element_by_link_text('Выйти').click()
+
+        # Она вышла из системы
+        self.wait_for(
+            lambda: self.browser.find_element_by_name('email')
+        )
+        navbar = self.browser.find_element_by_css_selector('.navbar')
+        self.assertNotIn(TEST_EMAIL, navbar.text)
