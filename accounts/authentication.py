@@ -7,7 +7,7 @@ from accounts.models import Token, User
 class PasswordlessAuthenticationBackend(object):
     '''беспарольный серверный процесс аутентификации'''
 
-    def authenticate(self, uid):
+    def authenticate(self, request, uid):
         '''аутентифицировать'''
         try:
             token = Token.objects.get(uid=uid)

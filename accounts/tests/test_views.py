@@ -1,3 +1,4 @@
+from urllib import response
 from django.test import TestCase
 from unittest.mock import patch, call
 from accounts.models import Token
@@ -56,23 +57,6 @@ class SendLoginEmailViewTest(TestCase):
 
         self.assertEqual(message.tags, "success")
 
-
-class LoginViewTest(TestCase):
-    '''тест представления входа в систему'''
-
-    def test_redirect_to_home_pahe(self):
-        '''тест: переадресуется на домашнюю страницу'''
-        response = self.client.get('/accounts/login?token=abcd123')
-        self.assertRedirects(response, '/')
-
-    def test_creates_token_associated_with_email(self):
-        '''тест: создается маркер, связаный с электронной почтой'''
-        self.client.post('/accounts/send_login_email', data={
-            'email':'test@gmail.com'
-        })
-        token = Token.objects.first()
-        self.assertEqual(token.email, 'test@gmail.com')
-
     @patch('accounts.views.send_mail')
     def test_sends_link_to_login_using_token_uid(self, mock_send_mail):
         '''тест: отсылается ссылка для входа в систему, использую маркер uid'''
@@ -85,9 +69,23 @@ class LoginViewTest(TestCase):
         (subject, body, from_email, to_list), kwargs=mock_send_mail.call_args
         self.assertIn(expected_url, body)
 
+    def test_creates_token_associated_with_email(self):
+        '''тест: создается маркер, связаный с электронной почтой'''
+        self.client.post('/accounts/send_login_email', data={
+            'email':'test@gmail.com'
+        })
+        token = Token.objects.first()
+        self.assertEqual(token.email, 'test@gmail.com')
 
+@patch('accounts.views.auth')
+class LoginViewTest(TestCase):
+    '''тест представления входа в систему'''
 
-    @patch('accounts.views.auth')
+    def test_redirect_to_home_pahe(self, mock_auth):
+        '''тест: переадресуется на домашнюю страницу'''
+        response = self.client.get('/accounts/login?token=abcd123')
+        self.assertRedirects(response, '/')
+
     def test_calls_authenticate_with_uid_from_get_request(self, mock_auth):
         '''тест: вызывается аутентификейт с уидом из гет-запроса'''
         self.client.get('/accounts/login?token=abcd123')
@@ -95,3 +93,17 @@ class LoginViewTest(TestCase):
             mock_auth.authenticate.call_args,
             call(uid='abcd123')
         )
+
+    def test_calls_auth_login_with_user_if_there_is_one(self, mock_auth):
+        '''тест: вызывается auth_login с пользователем если такой имеется'''
+        response = self.client.get('/accounts/login?token=abcd123')
+        self.assertEqual(
+            mock_auth.login.call_args,
+            call(response.wsgi_request, mock_auth.authenticate.return_value)
+        )
+
+    def test_does_not_login_if_user_is_not_authenticated(self, mock_auth):
+        '''тест: не регистрируется в системе, если пользователь не аутентифицирован'''
+        mock_auth.authenticate.return_value = None
+        self.client.get('/accounts/login?token=abcd123')
+        self.assertEqual(mock_auth.login.called, False)

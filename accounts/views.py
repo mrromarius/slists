@@ -1,3 +1,4 @@
+from cmath import log
 from email import message
 import re
 from django.core.mail import send_mail
@@ -14,11 +15,11 @@ def send_login_email(request):
     url = request.build_absolute_uri(
         reverse('login')+'?token='+str(token.uid)
     )
-    message_body = f'Использйте ссылку для входв:\n\n{url}'
+    message_body = f'Используйте ссылку для входа:\n\n{url}'
     send_mail(
         'Ваша ссылка на Суперзаписюльки', 
         message_body, 
-        'noreply@superlists', 
+        'python.testovich@mail.ru', 
         [email])
     messages.success(
         request,
@@ -27,6 +28,9 @@ def send_login_email(request):
     return redirect('/')
 
 def login(request):
-    '''создает ссылку на логин'''
-    auth.authenticate(uid=request.GET.get('token'))
+    '''регистрируем вход в систему'''
+    user = auth.authenticate(uid=request.GET.get('token'))
+    if user:
+        auth.login(request, user)
     return redirect('/')
+    
