@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.common.exceptions import WebDriverException
 
+
 MAX_WAIT = 10
 
 class FunctionalTest(StaticLiveServerTestCase):
@@ -52,3 +53,19 @@ class FunctionalTest(StaticLiveServerTestCase):
     def get_item_input_box(self):
         '''получить поле ввода для элемента'''
         return self.browser.find_element_by_id('id_text')
+
+    def wait_to_be_logged_in(self, email):
+        '''ожидать входа в систему'''
+        self.wait_for(
+            lambda:self.browser.find_element_by_link_text('Выйти')
+        )
+        navbar = self.browser.find_element_by_css_selector('.navbar')
+        self.assertIn(email, navbar.text)
+
+    def wait_to_be_logged_out(self, email):
+        '''ожидать выходать из системы'''
+        self.wait_for(
+            lambda:self.browser.find_element_by_name('email')
+        )
+        navbar = self.browser.find_element_by_css_selector('.navbar')
+        self.assertNotIn(email, navbar.text)
