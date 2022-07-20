@@ -34,7 +34,6 @@ CSRF_TRUSTED_ORIGINS = ['http://rastorium.tk','http://127.0.0.1']
 INSTALLED_APPS = [
     # 'django.contrib.admin',
     'django.contrib.auth',
-    'django_extensions',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
