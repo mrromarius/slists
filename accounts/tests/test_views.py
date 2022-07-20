@@ -39,7 +39,7 @@ class SendLoginEmailViewTest(TestCase):
         (subject, body, from_email, to_list), kwargs = mock_send_mail.call_args
 
         self.assertEqual(subject, 'Ваша ссылка на Суперзаписюльки')
-        self.assertEqual(from_email, 'noreply@superlists')
+        self.assertEqual(from_email, 'python.testovich@mail.ru')
         self.assertEqual(to_list, ['test@gmail.com'])
 
 
